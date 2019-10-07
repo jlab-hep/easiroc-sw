@@ -1,0 +1,8 @@
+.history
+.bundle/
+data/
+gems/
+objs/
+status/
+Gemfile.lock
+hist
