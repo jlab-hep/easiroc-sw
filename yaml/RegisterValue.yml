@@ -3,7 +3,7 @@ EASIROC1: #ue
         Capacitor LG PA Fdbck: 1.5pF
         Time Constant HG Shaper: 150ns #25~180ns
         Time Constant LG Shaper: 150ns
-        DAC code: 750
+        DAC code: 850
         Discriminator Mask:
         - 1
         - 1
@@ -114,7 +114,7 @@ EASIROC2: #shita
 High Gain Channel 1: -1
 High Gain Channel 2: -1  
 Probe Channel 1: -1
-Probe Channel 2: -1 
+Probe Channel 2: -1
 Probe 1: Out_fs
 Probe 2: Out_ssh_HG #Out_PA_HG,Out_PA_LG,Out_ssh_HG,Out_ssh_LG,Out_fs
 SelectableLogic: 
