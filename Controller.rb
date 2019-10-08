@@ -46,9 +46,9 @@ class CommandDispatcher
     rescue => e
       puts e.message
       puts "exit..."
-      setHV(0.0)
+      #setHV(0.0)
       sleep 1
-      exit
+      #exit
     end
   end
 
@@ -222,9 +222,9 @@ class CommandDispatcher
       count+=1
       if count > repeat then
         puts "Attempt limit. exit..."
-        setHV(0.0)
+        #setHV(0.0)
         sleep 1
-        exit
+        #exit
       end
 
       ## Read the MPPC bias voltage
@@ -379,7 +379,7 @@ class CommandDispatcher
               countTime += 1
             end
             countEvent  += 1
-            if countEvent%1000 == 0
+            if countEvent%5000 == 0
               print "Events: #{countEvent}\r"
             end
           end # end of readEvent loop

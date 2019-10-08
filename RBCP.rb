@@ -161,7 +161,7 @@ class RBCP
         raise RBCPError.new("Invalid ID")         if header.id != @id
         raise RBCPError.new("Invalid DataLength") if header.dataLength != dataLength
         raise RBCPError.new("Invalid Address")    if header.address != address
-        raise RBCPError.new("Frame Error")        if header.dataLength != receivedData.length - 8
+        raise RBCPError.new("Frame Error#######5")        if header.dataLength != receivedData.length - 8
     end
     private :validate
 end

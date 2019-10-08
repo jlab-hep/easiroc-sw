@@ -32,5 +32,3 @@ bundle install || {
     exit 1
 }
 
-echo 'Make data, status directories'
-mkdir -p data status
