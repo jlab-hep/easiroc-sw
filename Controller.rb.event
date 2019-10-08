@@ -46,9 +46,9 @@ class CommandDispatcher
     rescue => e
       puts e.message
       puts "exit..."
-      #setHV(0.0)
+      setHV(0.0)
       sleep 1
-      #exit
+      exit
     end
   end
 
@@ -222,9 +222,9 @@ class CommandDispatcher
       count+=1
       if count > repeat then
         puts "Attempt limit. exit..."
-        #setHV(0.0)
+        setHV(0.0)
         sleep 1
-        #exit
+        exit
       end
 
       ## Read the MPPC bias voltage
@@ -336,8 +336,7 @@ class CommandDispatcher
     $logger.debug "End of standby."
   end
 
-  #def read(events, filename="temp", mode="default")
-  def read( events, filename="temp", measureBy="time", mode="default")
+  def read(events, filename="temp", mode="default")
 
     $logger.debug "Begin of read."
     events = events.to_i
@@ -355,58 +354,16 @@ class CommandDispatcher
     if mode=="default"
       progress_bar = nil
       File.open(data_filename, 'wb') do |file|
-
-        # kim
-        if measureBy == "time" # measure by time
-          inputTime = events # second
-          events = 1E+10
-          events = events.to_i
-          startTime = Time.now
-          countTime = 1 # second
-          countEvent= 0
-          @vmeEasiroc.readEvent(events) do |header, data|
-            if inputTime <= (Time.now - startTime).to_i # check time condition
-              break # break readEvent loop
-            end
-            progress_bar ||= ProgressBar.create(
-              total: inputTime,
-              format: '                %P% [%b>%i] Processed %a, %e'
-            )
-            file.write(header[:header])
-            file.write(data.pack('N*'))
-            if countTime == (Time.now - startTime).to_i
-              progress_bar.increment
-              countTime += 1
-            end
-            countEvent  += 1
-            if countEvent%5000 == 0
-              print "Events: #{countEvent}\r"
-            end
-          end # end of readEvent loop
-
-        elsif measureBy == "event"
-          @vmeEasiroc.readEvent(events) do |header, data|
-            progress_bar ||= ProgressBar.create(
-              total: events,
-              format: '%p%% [%b>%i] %c %revent/s %e'
-            )
-            file.write(header[:header])
-            file.write(data.pack('N*'))
-            progress_bar.increment
-          end
+        @vmeEasiroc.readEvent(events) do |header, data|
+          progress_bar ||= ProgressBar.create(
+            total: events,
+            format: '%p%% [%b>%i] %c %revent/s %e'
+          )
+          file.write(header[:header])
+          file.write(data.pack('N*'))
+          progress_bar.increment
         end
-
-       # @vmeEasiroc.readEvent(events) do |header, data|
-       #   progress_bar ||= ProgressBar.create(
-       #     total: events,
-       #     format: '%p%% [%b>%i] %c %revent/s %e'
-       #   )
-       #   file.write(header[:header])
-       #   file.write(data.pack('N*'))
-       #   progress_bar.increment
-       # end
-
-      end # end of File
+      end
       progress_bar.finish
 
     elsif mode=="queue"
