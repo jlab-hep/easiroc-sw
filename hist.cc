@@ -95,7 +95,7 @@ void hist(const string& filename)
         unsigned int header = getBigEndian32(headerByte);
         bool isHeader = ((header >> 27) & 0x01) == 0x01;
         if(!isHeader) {
-            std::cerr << "Frame Error" << std::endl;
+            std::cerr << "Frame Error#######4" << std::endl;
             fprintf(stderr, "    %08X\n", header);
             std::exit(1);
         }

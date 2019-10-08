@@ -3,7 +3,7 @@ EASIROC1: #ue
         Capacitor LG PA Fdbck: 1.5pF
         Time Constant HG Shaper: 150ns #25~180ns
         Time Constant LG Shaper: 150ns
-        DAC code: 600 
+        DAC code: 750
         Discriminator Mask:
         - 1
         - 1
@@ -53,7 +53,7 @@ EASIROC2: #shita
         - 0
         - 0
         - 0
-        - 0
+        - 0 
         - 0
         - 0
         - 0
@@ -81,12 +81,11 @@ EASIROC2: #shita
         - 0
         - 0
         - 0
+        - 0 
         - 0
         - 0
         - 0
-        - 0
-        - 0
-        - 0
+        - 0 
         - 0
         - 0
         - 0 #MPPC1     #5
@@ -110,6 +109,7 @@ EASIROC2: #shita
         - 0
         - 0
         - 0
+        - 0
 
 High Gain Channel 1: -1
 High Gain Channel 2: -1  
@@ -120,7 +120,7 @@ Probe 2: Out_ssh_HG #Out_PA_HG,Out_PA_LG,Out_ssh_HG,Out_ssh_LG,Out_fs
 SelectableLogic: 
         Pattern: Or64 #Or64 #OneCh_#,Or32u,Or32d,Or64,Or32And,Or16And,And32u,And32d,And64,And32Or
         HitNum Threshold: 0 # Threshold for each OR logic. 0~64. Default: 0
-        And Channels: -1 # Cannels used in And Logic. 0~63. Default: -1
+        And Channels: -1  # Cannels used in And Logic. 0~63. Default: -1
 TimeWindow: 4095ns #4095ns
 UsrClkOut:  "OFF" #"OFF","ON",1Hz,10Hz,100Hz,1kHz.10kHz,100kHz,3MHz,25MHz
 Trigger:  ## This "Trigger" values are not used for this version.
@@ -129,3 +129,5 @@ Trigger:  ## This "Trigger" values are not used for this version.
         DelayHold: -1     #25MHz
         DelayL1Trig: -1   #6MHz
         Width: raw          
+
+

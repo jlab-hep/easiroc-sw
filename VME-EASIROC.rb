@@ -579,7 +579,7 @@ class VmeEasiroc
     def decodeWord(word)
         normalFrame = 0x80000000
         frame = word & 0x80808080
-        raise "Frame Error" unless frame == normalFrame
+        raise "Frame Error#######1" unless frame == normalFrame
 
         ret = ((word & 0x7f000000) >> 3) | ((word & 0x007f0000) >> 2) |
         ((word & 0x00007f00) >> 1) | ((word & 0x0000007f) >> 0)
@@ -600,7 +600,7 @@ class VmeEasiroc
     def receiveHeader
         header = decodeWord(receiveNbyte(4).unpack('N').first)
         isHeader = header[27]
-        raise "Frame Error" unless isHeader == 1
+        raise "Frame Error#######2" unless isHeader == 1
         dataSize = header & 0x0fff
 
         {dataSize: dataSize, header: [header].pack('N')}
@@ -608,7 +608,7 @@ class VmeEasiroc
 
     def receiveData(dataSize)
          data = receiveNbyte(4 * dataSize).unpack('N*').map(&method(:decodeWord))
-         raise "Frame Error" unless data.all?{|i| i[27] == 0}
+         raise "Frame Error#######3" unless data.all?{|i| i[27] == 0}
          data
     end
 
