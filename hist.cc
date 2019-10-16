@@ -5,6 +5,7 @@
 
 #include <TFile.h>
 #include <TH1.h>
+#include <TH2.h>
 
 using namespace std;
 
@@ -50,6 +51,8 @@ void hist(const string& filename)
     }
     string rootfile_name(filename);
     rootfile_name.replace(pos, 5, ".root");
+    string timestamp_name(filename);
+    timestamp_name.replace(pos, 14, "_timestamp.dat");
 
     TFile *f = new TFile(rootfile_name.c_str(), "RECREATE");
     TH1I* adcHigh[64];
@@ -57,6 +60,8 @@ void hist(const string& filename)
     TH1I* tdcLeading[64];
     TH1I* tdcTrailing[64];
     TH1F* scaler[67];
+    TH1F* hall;
+    TH2F* timestamp;
 
     int nbin = 4096;
     for(int i = 0; i < 64; ++i) {
@@ -84,11 +89,16 @@ void hist(const string& filename)
     scaler[66] = new TH1F("SCALER_OR64", "Scaler OR64",
                           //4096, 0, 200);
                           4096*10, 0, 200*10);
-
+    hall       = new TH1F("HALL", "Hall",
+//                          nbin, 0, 4096*5);
+                          nbin, 0, 4096*5);
+    timestamp  = new TH2F("TIMESTAMP", "Timestamp",
+                          40, 0, 40000000, 140, 0, 1400);
 
     ifstream datFile(filename.c_str(), ios::in | ios::binary);
     unsigned int scalerValuesArray[10][69];
     unsigned int events = 0;
+    ifstream ifs(timestamp_name.c_str());
     while(datFile) {
         char headerByte[4];
         datFile.read(headerByte, 4);
@@ -104,12 +114,16 @@ void hist(const string& filename)
         unsigned int scalerValues[69];
         char* dataBytes = new char[dataSize * 4];
         datFile.read(dataBytes, dataSize * 4);
+        int ADC_all = 0;
         for(size_t i = 0; i < dataSize; ++i) {
             unsigned int data = getBigEndian32(dataBytes + 4 * i);
             if(isAdcHg(data)) {
                 int ch = (data >> 13) & 0x3f;
                 bool otr = ((data >> 12) & 0x01) != 0;
                 int value = data & 0x0fff;
+                if(ch == 32||ch == 33||ch == 34||ch == 35||ch == 36) {
+                    ADC_all = ADC_all + value;
+                }
                 if(!otr) {
                     adcHigh[ch]->Fill(value);
                 }
@@ -179,6 +193,15 @@ void hist(const string& filename)
                 std::cerr << "Unknown data type" << std::endl;
             }
         }
+//  fstream ifs("timestamp_time1.dat",ios::in);
+//          while(ifs){
+//            char buf[256];
+//            ifs.getline(buf,255);
+//            cout<<buf<<" "<<ADC_all<<endl;
+        double a;
+        ifs>>a;
+        timestamp->Fill(a,ADC_all);
+        hall->Fill(ADC_all);
 
         delete[] dataBytes;
         events++;

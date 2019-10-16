@@ -339,73 +339,84 @@ class CommandDispatcher
   #def read(events, filename="temp", mode="default")
   def read( events, filename="temp", measureBy="time", mode="default")
 
+
     $logger.debug "Begin of read."
     events = events.to_i
-    if /\.dat$/ !~ filename
-      filename << '.dat'
+    if /\.dat$/ =~ filename
+      filename.slice!(".dat")
     end
+    data_filename = "data/#{filename}.dat"
+    time_filename = "data/#{filename}_timestamp.dat"
+    filename << '.dat'
 
-    data_filename = 'data/' + filename
     if (!filename.include?("temp") && File.exist?(data_filename))
       puts "#{data_filename} already exsits."
-      data_filename="data/temp_#{Time.now.to_i}.dat"
+      timestamp = Time.now.to_i
+      data_filename="data/temp_#{timestamp}.dat"
+      time_filename="data/#{timestamp}_timestamp.dat"
     end
     puts "Save as #{data_filename}"
+    puts "Save as #{time_filename}"
 
     if mode=="default"
       progress_bar = nil
       File.open(data_filename, 'wb') do |file|
+        File.open(time_filename, 'w') do |t_file|  #for timestamp data taking
 
-        # kim
-        if measureBy == "time" # measure by time
-          inputTime = events # second
-          events = 1E+10
-          events = events.to_i
-          startTime = Time.now
-          countTime = 1 # second
-          countEvent= 0
-          @vmeEasiroc.readEvent(events) do |header, data|
-            if inputTime <= (Time.now - startTime).to_i # check time condition
-              break # break readEvent loop
-            end
-            progress_bar ||= ProgressBar.create(
-              total: inputTime,
-              format: '                %P% [%b>%i] Processed %a, %e'
-            )
-            file.write(header[:header])
-            file.write(data.pack('N*'))
-            if countTime == (Time.now - startTime).to_i
+          # kim
+          if measureBy == "time" # measure by time
+            inputTime = events # second
+            events = 1E+10
+            events = events.to_i
+            startTime = Time.now
+            countTime = 1 # second
+            countEvent= 0
+            @vmeEasiroc.readEvent(events) do |header, data|
+              if inputTime <= (Time.now - startTime).to_i # check time condition
+                break # break readEvent loop
+              end
+              progress_bar ||= ProgressBar.create(
+                total: inputTime,
+                format: '                %P% [%b>%i] Processed %a, %e'
+              )
+              file.write(header[:header])
+              file.write(data.pack('N*'))
+              time = Time.now.to_i
+              t_file.puts(time)
+#             puts "time #{time}"
+#             file.write(Time.now)      #fuyasita
+              if countTime == (Time.now - startTime).to_i
+                progress_bar.increment
+                countTime += 1
+              end
+              countEvent  += 1
+              if countEvent%5000 == 0
+                print "Events: #{countEvent}\r"
+              end
+            end # end of readEvent loop
+  
+          elsif measureBy == "event"
+            @vmeEasiroc.readEvent(events) do |header, data|
+              progress_bar ||= ProgressBar.create(
+                total: events,
+                format: '%p%% [%b>%i] %c %revent/s %e'
+              )
+              file.write(header[:header])
+              file.write(data.pack('N*'))
               progress_bar.increment
-              countTime += 1
             end
-            countEvent  += 1
-            if countEvent%5000 == 0
-              print "Events: #{countEvent}\r"
-            end
-          end # end of readEvent loop
-
-        elsif measureBy == "event"
-          @vmeEasiroc.readEvent(events) do |header, data|
-            progress_bar ||= ProgressBar.create(
-              total: events,
-              format: '%p%% [%b>%i] %c %revent/s %e'
-            )
-            file.write(header[:header])
-            file.write(data.pack('N*'))
-            progress_bar.increment
           end
-        end
-
-       # @vmeEasiroc.readEvent(events) do |header, data|
-       #   progress_bar ||= ProgressBar.create(
-       #     total: events,
-       #     format: '%p%% [%b>%i] %c %revent/s %e'
-       #   )
-       #   file.write(header[:header])
-       #   file.write(data.pack('N*'))
-       #   progress_bar.increment
-       # end
-
+  
+         # @vmeEasiroc.readEvent(events) do |header, data|
+         #   progress_bar ||= ProgressBar.create(
+         #     total: events,
+         #     format: '%p%% [%b>%i] %c %revent/s %e'
+         #   )
+         #   file.write(header[:header])
+         #   file.write(data.pack('N*'))
+         #   progress_bar.increment
+         # end
+        end 
       end # end of File
       progress_bar.finish
 
